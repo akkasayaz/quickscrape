@@ -1,0 +1,15 @@
+Metadata-Version: 2.2
+Name: quickscrape
+Version: 0.1.0
+Summary: A simple library for extracting common data types from web pages
+Author-email: Your Name <your.email@example.com>
+Project-URL: Homepage, https://github.com/akkasayaz/quickscrape
+Project-URL: Bug Tracker, https://github.com/akkasayaz/quickscrape/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: beautifulsoup4>=4.9.0
+Requires-Dist: requests>=2.25.0
+Requires-Dist: pandas>=1.1.0
