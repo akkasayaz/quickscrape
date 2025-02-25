@@ -4,11 +4,13 @@ Extractors for different data types.
 
 from .email import extract_emails
 from .table import extract_tables
+from .links import extract_links
 
 # Registry of available extractors
 EXTRACTORS = {
     "email": extract_emails,
     "table": extract_tables,
+    "links": extract_links,
     # Add more extractors as they are implemented
 }
 
