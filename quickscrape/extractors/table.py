@@ -118,6 +118,10 @@ def process_table(table_element, **options) -> Optional[List[Dict[str, Any]]]:
         
         rows.append(row_data)
     
+    # Discard the first row if it is the same as the headers
+    if include_headers and rows and list(rows[0].values()) == headers:
+        rows = rows[1:]
+    
     # Convert to requested output format
     if output_format == 'dataframe':
         return pd.DataFrame(rows)
