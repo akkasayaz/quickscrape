@@ -18,14 +18,19 @@ emails = quickscrape.extract("email", "https://example.com/contact")
 
 # Extract tables
 tables = quickscrape.extract("table", "https://example.com/data")
-```
+# Get tables as pandas DataFrames
+tables_df = quickscrape.extract("table", "https://example.com/data", output_format="dataframe")
 
+# Extract multiple data types at once
+results = quickscrape.extract(["email", "table"], "https://example.com")email", "https://example.com/contact")
+
+# Extract tables
+tables = quickscrape.extract("table", "https://example.com/data")
+```
 
 ## License
 
 MIT
-
-
 
 ### Development Workflow
 
