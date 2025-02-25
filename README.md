@@ -4,6 +4,8 @@ A simple Python library for extracting common data types from web pages.
 
 ## Installation
 
+#### Not available yet
+
 ```bash
 pip install quickscrape
 ```
