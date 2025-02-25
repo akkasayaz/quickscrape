@@ -3,3 +3,14 @@
 __pycache__/
 manuel_test.py
 *.egg-info
+# Python bytecode files
+*.py[cod]
+
+# Build directories
+dist/
+build/
+
+
+# IDE and editor specific files (optional)
+.vscode/
+.idea/

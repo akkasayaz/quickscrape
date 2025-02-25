@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "quickscrape"
 version = "0.1.0"
 authors = [
-    {name = "Utku Ayaz Akkas", email = "utkuayazakkas@hotmail.com"},
+    {name = "Utku Ayaz Akkas", email = "akkas@ieee.org"},
 ]
 description = "A simple library for extracting common data types from web pages"
 readme = "README.md"
@@ -19,7 +19,9 @@ classifiers = [
 dependencies = [
     "beautifulsoup4>=4.9.0",
     "requests>=2.25.0",
+    "pandas>=1.2.0",
 ]
+
 
 [project.urls]
 "Homepage" = "https://github.com/akkasayaz/quickscrape"
