@@ -1,4 +1,4 @@
-from quickscrape.extractors import email, table
+from quickscrape.extractors import email, table, links
 import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 class TestEmailExtractor(unittest.TestCase):
     """Tests for email extraction functionality."""
-    
+
     def test_extract_emails(self):
         """Test extracting emails from HTML content."""
         html = """
@@ -18,14 +18,14 @@ class TestEmailExtractor(unittest.TestCase):
         </body>
         </html>
         """
-        
+
         emails = email.extract_emails(html)
-        
+
         self.assertEqual(len(emails), 3)
         self.assertIn("info@example.com", emails)
         self.assertIn("support@example.com", emails)
         self.assertIn("sales@example.com", emails)
-    
+
     def test_no_emails(self):
         """Test extracting emails when none are present."""
         html = """
@@ -35,9 +35,9 @@ class TestEmailExtractor(unittest.TestCase):
         </body>
         </html>
         """
-        
+
         emails = email.extract_emails(html)
-        
+
         self.assertEqual(len(emails), 0)
 
 
@@ -45,7 +45,7 @@ class TestEmailExtractor(unittest.TestCase):
 
 class TestTableExtractor(unittest.TestCase):
     """Tests for table extraction functionality."""
-    
+
     def test_extract_basic_table(self):
         """Test extracting a simple table from HTML content."""
         html = """
@@ -68,20 +68,20 @@ class TestTableExtractor(unittest.TestCase):
         </body>
         </html>
         """
-        
+
         tables = table.extract_tables(html)
-        
+
         # Verify results
         self.assertEqual(len(tables), 1, "Should extract exactly one table")
         self.assertIsInstance(tables[0], list, "Table should be returned as a list")
         self.assertEqual(len(tables[0]), 2, "Table should have 2 data rows")
-        
+
         # Verify content
         self.assertEqual(tables[0][0]['Name'], 'Alice')
         self.assertEqual(tables[0][0]['Age'], '25')
         self.assertEqual(tables[0][1]['Name'], 'Bob')
         self.assertEqual(tables[0][1]['Age'], '30')
-    
+
     def test_extract_multiple_tables(self):
         """Test extracting multiple tables from the same HTML."""
         html = """
@@ -100,14 +100,14 @@ class TestTableExtractor(unittest.TestCase):
         </body>
         </html>
         """
-        
+
         tables = table.extract_tables(html)
-        
+
         self.assertEqual(len(tables), 2, "Should extract two tables")
         self.assertEqual(len(tables[0]), 1, "First table should have 1 data row")
         self.assertEqual(len(tables[1]), 2, "Second table should have 2 data rows")
         self.assertEqual(tables[1][1]['Product'], 'Gadget')
-    
+
     def test_extract_table_with_thead_tbody(self):
         """Test extracting tables with proper thead and tbody structure."""
         html = """
@@ -121,28 +121,28 @@ class TestTableExtractor(unittest.TestCase):
             </tbody>
         </table>
         """
-        
+
         tables = table.extract_tables(html)
-        
+
         self.assertEqual(len(tables), 1)
         self.assertEqual(len(tables[0]), 2)
-        
+
         # Verify headers were correctly extracted from thead
         self.assertIn('Item', tables[0][0])
         self.assertIn('Quantity', tables[0][0])
         self.assertIn('Price', tables[0][0])
-    
+
     def test_empty_tables(self):
         """Test handling of empty tables."""
         html = """
         <table></table>
         <table><tr></tr></table>
         """
-        
+
         tables = table.extract_tables(html)
-        
+
         self.assertEqual(len(tables), 0, "Empty tables should be filtered out")
-    
+
     def test_missing_headers(self):
         """Test tables with no headers."""
         html = """
@@ -151,15 +151,15 @@ class TestTableExtractor(unittest.TestCase):
             <tr><td>Bob</td><td>30</td></tr>
         </table>
         """
-        
+
         tables = table.extract_tables(html, include_headers=False)
-        
+
         self.assertEqual(len(tables), 1)
         self.assertEqual(len(tables[0]), 2)
         # Check auto-generated headers are used
         self.assertIn('Column 1', tables[0][0])
         self.assertIn('Column 2', tables[0][0])
-    
+
     def test_output_formats(self):
         """Test different output formats."""
         html = """
@@ -168,20 +168,20 @@ class TestTableExtractor(unittest.TestCase):
             <tr><td>Alice</td><td>25</td></tr>
         </table>
         """
-        
+
         # Default output format returns a list of dicts
         tables_list = table.extract_tables(html)
         self.assertIsInstance(tables_list[0][0], dict)
-        
+
         # Test dataframe output format
         tables_df = table.extract_tables(html, output_format='dataframe')
         self.assertIsInstance(tables_df[0], pd.DataFrame)
         self.assertEqual(tables_df[0].shape, (1, 2))
-        
+
         # In your implementation, both 'list' and 'dict' formats return lists of dicts
         tables_dict = table.extract_tables(html, output_format='dict')
         self.assertIsInstance(tables_dict[0][0], dict)
-    
+
     def test_inconsistent_rows(self):
         """Test tables with rows having different numbers of cells."""
         html = """
@@ -191,14 +191,14 @@ class TestTableExtractor(unittest.TestCase):
             <tr><td>Bob</td><td>30</td><td>New York</td><td>Extra</td></tr>
         </table>
         """
-        
+
         tables = table.extract_tables(html)
-        
+
         # First row is missing City
         self.assertEqual(tables[0][0]['City'], '')
         # Second row should have Name, Age, and City, but not the extra cell
         self.assertEqual(len(tables[0][1]), 3)
-    
+
     def test_nested_tables(self):
         """Test handling of nested tables."""
         html = """
@@ -215,12 +215,12 @@ class TestTableExtractor(unittest.TestCase):
             </tr>
         </table>
         """
-        
+
         tables = table.extract_tables(html)
-        
+
         # Should find both outer and inner tables
         self.assertEqual(len(tables), 2, "Should extract both the outer and inner tables")
-    
+
     @patch('quickscrape.extractors.common.BaseExtractor.create_soup')
     def test_invalid_html(self, mock_create_soup):
         """Test handling of invalid HTML."""
@@ -228,13 +228,13 @@ class TestTableExtractor(unittest.TestCase):
         mock_soup = MagicMock()
         mock_soup.find_all.return_value = []  # No tables found
         mock_create_soup.return_value = mock_soup
-        
+
         tables = table.extract_tables("<invalid>html</not-matching>")
-        
+
         self.assertEqual(len(tables), 0, "Invalid HTML should return no tables")
         # Verify the mock was called
         mock_create_soup.assert_called_once()
-    
+
     def test_complex_html_structure(self):
         """Test extraction from complex HTML with multiple elements."""
         html = """
@@ -256,18 +256,18 @@ class TestTableExtractor(unittest.TestCase):
             </table>
         </div>
         """
-        
+
         tables = table.extract_tables(html)
-        
+
         self.assertEqual(len(tables), 1)
         # We check for the specific data we expect to be present
         self.assertGreaterEqual(len(tables[0]), 2, "Should extract at least 2 rows")
         self.assertEqual(tables[0][0]['Month'], 'January')
         self.assertEqual(tables[0][1]['Month'], 'February')
-        
+
         # Note: Currently your implementation might not handle the tfoot element
         # This can be added as a future enhancement
-    
+
     def test_table_with_bug_fix(self):
         """Test the fix for the bug in the original code."""
         html = """
@@ -276,20 +276,110 @@ class TestTableExtractor(unittest.TestCase):
             <tr><td>Alice</td><td>25</td></tr>
         </table>
         """
-        
+
         # This test ensures the fixed line works properly
         tables = table.extract_tables(html)
         self.assertEqual(len(tables), 1)
-        
+
         # Create a DataFrame for testing the bug
         df = pd.DataFrame({'Name': ['Alice'], 'Age': ['25']})
-        
+
         # Mock the process_table function to return the DataFrame
         with patch('quickscrape.extractors.table.process_table', return_value=df):
             # This would fail with the original typo (process_table.empty instead of processed_table.empty)
             tables = table.extract_tables(html)
             self.assertEqual(len(tables), 1)
 
+class TestLinkExtractor(unittest.TestCase):
+    """Tests for link extraction functionality."""
+
+    def test_extract_all_links(self):
+        """Test extracting all links from HTML content."""
+        html = """
+        <html>
+        <body>
+            <a href="/internal1">Internal Link 1</a>
+            <a href="https://example.com/internal2">Internal Link 2</a>
+            <a href="https://external.com/page">External Link</a>
+        </body>
+        </html>
+        """
+
+        base_url = "https://example.com"
+        extracted_links = links.extract_links(html, base_url)
+
+        self.assertEqual(len(extracted_links), 3)
+        self.assertIn("https://example.com/internal1", extracted_links)
+        self.assertIn("https://example.com/internal2", extracted_links)
+        self.assertIn("https://external.com/page", extracted_links)
+
+    def test_extract_internal_links(self):
+        """Test extracting only internal links."""
+        html = """
+        <html>
+        <body>
+            <a href="/internal">Internal Link</a>
+            <a href="https://external.com/page">External Link</a>
+        </body>
+        </html>
+        """
+
+        base_url = "https://example.com"
+        extracted_links = links.extract_links(html, base_url, link_type="internal")
+
+        self.assertEqual(len(extracted_links), 1)
+        self.assertIn("https://example.com/internal", extracted_links)
+
+    def test_extract_external_links(self):
+        """Test extracting only external links."""
+        html = """
+        <html>
+        <body>
+            <a href="/internal">Internal Link</a>
+            <a href="https://external.com/page">External Link</a>
+        </body>
+        </html>
+        """
+
+        base_url = "https://example.com"
+        extracted_links = links.extract_links(html, base_url, link_type="external")
+
+        self.assertEqual(len(extracted_links), 1)
+        self.assertIn("https://external.com/page", extracted_links)
+
+    def test_no_links(self):
+        """Test handling of HTML content with no links."""
+        html = """
+        <html>
+        <body>
+            <p>No links here.</p>
+        </body>
+        </html>
+        """
+
+        base_url = "https://example.com"
+        extracted_links = links.extract_links(html, base_url)
+
+        self.assertEqual(len(extracted_links), 0)
+
+    def test_anchor_links(self):
+        """Test extracting anchor links that point to the same page."""
+        html = """
+        <html>
+        <body>
+            <a href="#section1">Go to Section 1</a>
+            <a href="#section2">Go to Section 2</a>
+            <a href="https://external.com/page">External Link</a>
+        </body>
+        </html>
+        """
+
+        base_url = "https://example.com"
+        extracted_links = links.extract_links(html, base_url, link_type="anchor")
+
+        self.assertEqual(len(extracted_links), 1)
+        self.assertNotIn("https://example.com#section1", extracted_links)
+        self.assertNotIn("https://example.com#section2", extracted_links)
 
 if __name__ == "__main__":
     unittest.main()
