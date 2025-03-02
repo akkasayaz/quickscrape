@@ -290,8 +290,8 @@ class TestTableExtractor(unittest.TestCase):
             tables = table.extract_tables(html)
             self.assertEqual(len(tables), 1)
 
-    class TestLinkExtractor(unittest.TestCase):
-        """Tests for link extraction functionality."""
+class TestLinkExtractor(unittest.TestCase):
+    """Tests for link extraction functionality."""
 
     def test_extract_all_links(self):
         """Test extracting all links from HTML content."""
@@ -362,6 +362,24 @@ class TestTableExtractor(unittest.TestCase):
 
         self.assertEqual(len(extracted_links), 0)
 
+    def test_anchor_links(self):
+        """Test extracting anchor links that point to the same page."""
+        html = """
+        <html>
+        <body>
+            <a href="#section1">Go to Section 1</a>
+            <a href="#section2">Go to Section 2</a>
+            <a href="https://external.com/page">External Link</a>
+        </body>
+        </html>
+        """
+
+        base_url = "https://example.com"
+        extracted_links = links.extract_links(html, base_url, link_type="anchor")
+
+        self.assertEqual(len(extracted_links), 1)
+        self.assertNotIn("https://example.com#section1", extracted_links)
+        self.assertNotIn("https://example.com#section2", extracted_links)
 
 if __name__ == "__main__":
     unittest.main()
