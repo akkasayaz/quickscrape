@@ -20,20 +20,20 @@ def extract_links(html_content: str, base_url: str, link_type: Optional[str] = N
     # Parse the base URL to get its domain
     base_domain = urlparse(base_url).netloc
 
-    links = set()
+    internal_links = set()
+    external_links = set()
     for anchor in soup.find_all("a", href=True):
         href = anchor["href"].strip()
-
+        if href.startswith("#"):
+            continue
         # Convert relative URLs to absolute
         absolute_url = urljoin(base_url, href)
         parsed_url = urlparse(absolute_url)
 
-        # Determine if the link is internal or external
-        if link_type == "internal" and parsed_url.netloc != base_domain:
-            continue
-        if link_type == "external" and parsed_url.netloc == base_domain:
-            continue
+        isInternal = parsed_url.netloc == base_domain
 
-        links.add(absolute_url)
+        (internal_links if isInternal else external_links).add(absolute_url)
 
-    return list(links)
+
+
+    return list(internal_links) if link_type == "internal" else list(external_links) if link_type == "external" else list(internal_links.union(external_links))
